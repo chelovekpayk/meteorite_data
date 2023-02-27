@@ -1,9 +1,10 @@
-#!venv/bin python
+#!.venv/bin python
 # coding=utf-8
+
+#https://www.coursera.org/learn/python-data-visualization/home/week/4
 
 import requests
 import json
-import sqlite3
 
 class Meteorites():
     def __init__(self) -> None:
@@ -15,11 +16,7 @@ class Meteorites():
             json.dump(self.data, file, indent=4)
 
 if __name__ == "__main__":
-    r = Meteorites()
-    r.save_json()
+    #r = Meteorites().save_json()
 
-    db = sqlite3.connect('meteorite.db')
-    cursor = db.cursor()
-    db.execute('''CREATE TABLE IF NOT EXISTS Meteorites
-    (id INTEGER UNIQUE, name TEXT, nametype TEXT, recclass TEXT, mass INTEGER, year TEXT, reclat RE
-     subject TEXT, headers TEXT, body TEXT)''')
+    for i in Meteorites().data:
+        print (i)
