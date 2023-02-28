@@ -32,12 +32,32 @@ cur.execute(
 
 data = Meteorites().data
 
-for item in data:
-    cur.execute("""
+def insert_meteorite_data():
+    """
+    Function for insert data in table meteorites
+    """
+    for record in data:
+        cur.execute("""
                 INSERT INTO Meteorites (name, nametype, recclass, mass, fall, year)
                 VALUES (?, ?, ?, ?, ?, ?)""",
-                (item['name'], item['nametype'],
-                 item['recclass'], item['mass'],
-                 item['fall'], item['year'])
+                (record['name'], record['nametype'],
+                 record['recclass'], record['mass'],
+                 record['fall'], record['year'])
                 )
-con.commit()
+    con.commit()
+
+def insert_geo_data():
+    """
+    Func for insert data to Geodata table
+    """
+    for row, record in enumerate(data):
+        for geo in record['geolocation']:
+            cur.execute("""
+                    INSERT INTO Geodata(latitude, longtitude)
+                    VALUES (?, ?)""",
+                    (geo['latitude'], geo['longitude'])
+            )
+    con.commit()
+
+insert_meteorite_data()
+insert_geo_data()
