@@ -35,7 +35,9 @@ data = Meteorites().data
 for item in data:
     cur.execute("""
                 INSERT INTO Meteorites (name, nametype, recclass, mass, fall, year)
-                VALUES (?, ?, ?, ?, ?, ?)""", (item['name'], item['nametype'], item['recclass'], item['mass'], item['fall'], item['year']))
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (item['name'], item['nametype'],
+                 item['recclass'], item['mass'],
+                 item['fall'], item['year'])
+                )
 con.commit()
-
-#TOFIX: item['mass'] and item['year'] not exist in request
