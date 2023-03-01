@@ -1,30 +1,10 @@
 #!.venv/bin python
 # coding=utf-8
 
-#https://www.coursera.org/learn/python-data-visualization/home/week/4
+from app import Meteorites
+from db import create_mt_table, create_geo_table
 
-import json
-import requests
+data = Meteorites().get_data()
 
-
-class Meteorites():
-    ''' 
-    Class for get data from NASA API. Init creates session obj and fill missing key values in dict.
-    '''
-    def __init__(self) -> None:
-        self.source = 'https://data.nasa.gov/resource/gh4g-9sfh.json' #link to api
-        self.data = requests.get(self.source, timeout=12).json() #request
-
-        for record in self.data:
-            if record.get('geolocation') is None:
-                record.update({'geolocation':{'latitude':None, 'longitude':None}})
-
-    def save_json(self):
-        """
-        method to save result in a json-file
-        """
-        with open('data.json', 'w', encoding='utf-8') as file:
-            json.dump(self.data, file, indent=4, allow_nan=True)
-
-if __name__ == "__main__":
-    Meteorites().save_json()
+create_mt_table(data)
+create_geo_table(data)
