@@ -16,10 +16,8 @@ class Meteorites():
         self.data = requests.get(self.source, timeout=12).json() #request
 
         for record in self.data:
-            if 'mass' not in record.keys():
-                record.update({'mass':'na'})
-            elif 'year' not in record.keys():
-                record.update({'year':'na'})
+            if record.get('geolocation') is None:
+                record.update({'geolocation':{'latitude':None, 'longitude':None}})
 
     def save_json(self):
         """

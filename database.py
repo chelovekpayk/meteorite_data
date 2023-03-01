@@ -17,7 +17,9 @@ cur.execute('''
         recclass TEXT, 
         mass REAL,
         fall TEXT,
-        year INTEGER
+        year INTEGER,
+        FOREIGN KEY (id) 
+        REFERENCES Geodata(geo_id)
         )'''
     )
 
@@ -40,9 +42,9 @@ def insert_meteorite_data():
         cur.execute("""
                 INSERT INTO Meteorites (name, nametype, recclass, mass, fall, year)
                 VALUES (?, ?, ?, ?, ?, ?)""",
-                (record['name'], record['nametype'],
-                 record['recclass'], record['mass'],
-                 record['fall'], record['year'])
+                (record.get('name'), record.get('nametype'),
+                 record.get('recclass'), record.get('mass'),
+                 record.get('fall'), record.get('year'))
                 )
     con.commit()
 
@@ -50,13 +52,13 @@ def insert_geo_data():
     """
     Func for insert data to Geodata table
     """
-    for row, record in enumerate(data):
-        for geo in record['geolocation']:
-            cur.execute("""
-                    INSERT INTO Geodata(latitude, longtitude)
-                    VALUES (?, ?)""",
-                    (geo['latitude'], geo['longitude'])
-            )
+    for record in data:
+        geo = record.get('geolocation')
+        cur.execute("""
+                INSERT INTO Geodata(latitude, longtitude)
+                VALUES (?, ?)""",
+                (geo['latitude'], geo['longitude'])
+        )
     con.commit()
 
 insert_meteorite_data()
