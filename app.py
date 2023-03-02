@@ -18,6 +18,10 @@ class Meteorites():
         self.source = 'https://data.nasa.gov/resource/gh4g-9sfh.json' #link to api
         self.data = requests.get(self.source, timeout=12).json() #request
 
+
+        for record in self.data:
+            if record.get('year') is not None:
+                record.update({'year':record['year'][:4]})
         for record in self.data:
             if record.get('geolocation') is None:
                 record.update({'geolocation':{'latitude':None, 'longitude':None}})
