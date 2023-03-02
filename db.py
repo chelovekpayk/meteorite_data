@@ -46,7 +46,10 @@ def create_geo_table(data: dict):
         '''CREATE TABLE Geodata(
             geo_id INTEGER NOT NULL PRIMARY KEY, 
             latitude REAL, 
-            longtitude REAL
+            longtitude REAL,
+            place TEXT,
+            country TEXT,
+            state TEXT
             )'''
         )
 
