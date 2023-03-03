@@ -2,6 +2,7 @@ import os
 import sqlite3
 import requests
 import traceback
+import time
 
 api_key = os.environ['METEO_API']
 
@@ -10,8 +11,7 @@ con = sqlite3.connect('meteorites.db')
 cur = con.cursor()
 
 query =  '''SELECT Geodata.latitude, Geodata.longtitude FROM Geodata 
-WHERE Geodata.latitude is not NULL AND (Geodata.latitude IS NOT 0.0 OR Geodata.longtitude IS NOT 0.0)
-LIMIT 60;'''
+WHERE Geodata.latitude IS NOT NULL AND Geodata.latitude IS NOT 0.0 AND Geodata.longtitude IS NOT 0.0;''' #266 601
 
 url = 'http://api.openweathermap.org/geo/1.0/reverse'
 
@@ -23,21 +23,24 @@ try:
     c = 0
     for i in data.fetchall():
         c += 1
-        print(c)
         params = {'lat':i[0],
                 'lon':i[1],
                 'limit':1,
                 'appid':api_key}
+        print(c, params['lat'], params['lon'])
         
         request_to_api = r.get(url=url, params=params).json()
-
-        data = request_to_api[0]
+        try:
+            data = request_to_api[0]
+        except IndexError:
+            continue
 
         cur.execute('''UPDATE Geodata
                     SET place = ?,
                         country = ?,
                         state = ?
-                    WHERE latitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0]))
+                    WHERE latitude = ? AND longtitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0], i[1]))
+        time.sleep(1.1)
 except:
     traceback.print_exc()
 
