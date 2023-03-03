@@ -87,23 +87,30 @@ class Database():
         url = 'http://api.openweathermap.org/geo/1.0/reverse'
         r = requests.Session()
 
-        for i in data.fetchall():
-            params = {'lat':i[0],
-                    'lon':i[1],
-                    'limit':1,
-                    'appid':api_key}
+        try:
+            for i in data.fetchall():
+                params = {'lat':i[0],
+                        'lon':i[1],
+                        'limit':1,
+                        'appid':api_key}
 
-            request_to_api = r.get(url=url, params=params).json()
-            try:
-                data = request_to_api[0]
-            except IndexError:
-                continue
+                try:
+                    request_to_api = r.get(url=url, params=params).json()
+                    data = request_to_api[0]
+                
+                except IndexError:
+                    continue
 
-            self.cur.execute('''UPDATE Geodata
-                        SET place = ?,
-                            country = ?,
-                            state = ?
-                        WHERE latitude = ? AND longtitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0], i[1]))
-            time.sleep(1.1)
+                except Exception as e:
+                    print(f'Error {e} on: {i[0]}, {i[1]}')
 
-        self.con.commit()
+                self.cur.execute('''UPDATE Geodata
+                            SET place = ?,
+                                country = ?,
+                                state = ?
+                            WHERE latitude = ? AND longtitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0], i[1]))
+
+                if i % 100 == 0: print (f'{i} из {len(data.fetchall())}.') #Информация в терминал о каждой 100-записи
+                time.sleep(1.1) # Free OWM API имеет ограничение на 60 запросов в минуту
+        finally:
+            self.con.commit()
