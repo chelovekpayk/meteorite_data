@@ -2,9 +2,16 @@
 # coding=utf-8
 
 from app import Meteorites
-from db import create_mt_table, create_geo_table
+import os
+from db import Database
 
 data = Meteorites().get_data()
 
-create_mt_table(data)
-create_geo_table(data)
+db = Database(data)
+
+db.create_mt_table()
+db.create_geo_table()
+
+api_key = os.environ['METEO_API']
+
+db.get_geodata_api(api_key)
