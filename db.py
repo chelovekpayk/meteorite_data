@@ -82,13 +82,13 @@ class Database():
         """
         query =  '''SELECT Geodata.latitude, Geodata.longtitude FROM Geodata
         WHERE Geodata.latitude IS NOT NULL AND Geodata.latitude IS NOT 0.0 AND Geodata.longtitude IS NOT 0.0;'''
-        data = self.cur.execute(query)
+        data = self.cur.execute(query).fetchall()
 
         url = 'http://api.openweathermap.org/geo/1.0/reverse'
         r = requests.Session()
 
         try:
-            for i in data.fetchall():
+            for n,i in enumerate(data):
                 params = {'lat':i[0],
                         'lon':i[1],
                         'limit':1,
@@ -110,7 +110,7 @@ class Database():
                                 state = ?
                             WHERE latitude = ? AND longtitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0], i[1]))
 
-                if i % 100 == 0: print (f'{i} из {len(data.fetchall())}.') #Информация в терминал о каждой 100-записи
+               # if n % 100 == 0: print (f'{n} из {len(enumerate(data))}.') #Информация в терминал о каждой 100-записи
                 time.sleep(1.1) # Free OWM API имеет ограничение на 60 запросов в минуту
         finally:
             self.con.commit()
