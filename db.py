@@ -105,11 +105,14 @@ class Database:
                     request_to_api = r.get(url=url, params=params).json()
                     data = request_to_api[0]
 
+                    #info
+                    if i % 1000: print ('At row ', n, 'from', len(data))
+
                 except IndexError:
                     continue
 
                 except Exception as e:
-                    print(f"Error {e} on: {i[0]}, {i[1]}")
+                    print(f"Error {e} on row {n}, {i[0]}, {i[1]}")
 
                 self.cur.execute(
                     """UPDATE Geodata

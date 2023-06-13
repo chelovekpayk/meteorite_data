@@ -1,6 +1,5 @@
 #Local ignore
 *.db
-!meteorites.db
 *test*
 *.json
 *secret*
