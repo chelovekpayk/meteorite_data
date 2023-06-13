@@ -1,28 +1,31 @@
 import sqlite3
 import time
 import requests
-class Database():
+
+
+class Database:
     """
     Create object for pulling data to database
     dict: dictionary
     """
-    def __init__(self, data:dict):
 
-        #creating connection to sql database
-        self.con = sqlite3.connect('meteorites.db')
+    def __init__(self, data: dict):
+        # creating connection to sql database
+        self.con = sqlite3.connect("meteorites.db")
         self.cur = self.con.cursor()
 
-        #dict to pull data
+        # dict to pull data
         self.data = data
 
     def create_mt_table(self):
         """
-        Method creates table 'Meteorites' in sql meteorites.db and inserts data in table 
+        Method creates table 'Meteorites' in sql meteorites.db and inserts data in table
         """
 
-        #creating table
-        self.cur.execute('''DROP TABLE IF EXISTS Meteorites''')
-        self.cur.execute('''
+        # creating table
+        self.cur.execute("""DROP TABLE IF EXISTS Meteorites""")
+        self.cur.execute(
+            """
             CREATE TABLE Meteorites (
                 id INTEGER NOT NULL PRIMARY KEY, 
                 name TEXT, 
@@ -33,18 +36,24 @@ class Database():
                 year INTEGER,
                 FOREIGN KEY (id) 
                 REFERENCES Geodata(geo_id)
-                )'''
-            )
+                )"""
+        )
 
-        #inserting data
+        # inserting data
         for record in self.data:
-            self.cur.execute("""
+            self.cur.execute(
+                """
                     INSERT INTO Meteorites (name, nametype, recclass, mass, fall, year)
                     VALUES (?, ?, ?, ?, ?, ?)""",
-                    (record.get('name'), record.get('nametype'),
-                    record.get('recclass'), record.get('mass'),
-                    record.get('fall'), record.get('year'))
-                    )
+                (
+                    record.get("name"),
+                    record.get("nametype"),
+                    record.get("recclass"),
+                    record.get("mass"),
+                    record.get("fall"),
+                    record.get("year"),
+                ),
+            )
         self.con.commit()
 
     def create_geo_table(self):
@@ -52,65 +61,74 @@ class Database():
         Method creates table 'Geodata' in sql meteorites.db and inserts data in table
         """
 
-        self.cur.execute('''DROP TABLE IF EXISTS Geodata''')
+        self.cur.execute("""DROP TABLE IF EXISTS Geodata""")
         self.cur.execute(
-            '''CREATE TABLE Geodata(
+            """CREATE TABLE Geodata(
                 geo_id INTEGER NOT NULL PRIMARY KEY, 
                 latitude REAL, 
                 longtitude REAL,
                 place TEXT,
                 country TEXT,
                 state TEXT
-                )'''
-            )
+                )"""
+        )
 
-        #insert data in table
+        # insert data in table
         for record in self.data:
-            geo = record.get('geolocation')
-            self.cur.execute("""
+            geo = record.get("geolocation")
+            self.cur.execute(
+                """
                         INSERT INTO Geodata(latitude, longtitude)
                         VALUES (?, ?)""",
-                        (geo['latitude'], geo['longitude'])
-                        )
+                (geo["latitude"], geo["longitude"]),
+            )
         self.con.commit()
 
-    def get_geodata_api(self, api_key:str):
+    def get_geodata_api(self, api_key: str):
         """
         Method for connecting to OpenWeatherMap
         Connects names for geoplaces from Recursive geodata API
         api_key: str api key for OWM
         """
-        query =  '''SELECT Geodata.latitude, Geodata.longtitude FROM Geodata
-        WHERE Geodata.latitude IS NOT NULL AND Geodata.latitude IS NOT 0.0 AND Geodata.longtitude IS NOT 0.0;'''
+        query = """SELECT Geodata.latitude, Geodata.longtitude FROM Geodata
+        WHERE Geodata.latitude IS NOT NULL AND Geodata.latitude IS NOT 0.0 AND Geodata.longtitude IS NOT 0.0;"""
         data = self.cur.execute(query).fetchall()
 
-        url = 'http://api.openweathermap.org/geo/1.0/reverse'
+        url = "http://api.openweathermap.org/geo/1.0/reverse"
         r = requests.Session()
 
         try:
-            for n,i in enumerate(data):
-                params = {'lat':i[0],
-                        'lon':i[1],
-                        'limit':1,
-                        'appid':api_key}
+            for n, i in enumerate(data):
+                params = {"lat": i[0], "lon": i[1], "limit": 1, "appid": api_key}
 
                 try:
                     request_to_api = r.get(url=url, params=params).json()
                     data = request_to_api[0]
-                
+
                 except IndexError:
                     continue
 
                 except Exception as e:
-                    print(f'Error {e} on: {i[0]}, {i[1]}')
+                    print(f"Error {e} on: {i[0]}, {i[1]}")
 
-                self.cur.execute('''UPDATE Geodata
+                self.cur.execute(
+                    """UPDATE Geodata
                             SET place = ?,
                                 country = ?,
                                 state = ?
-                            WHERE latitude = ? AND longtitude = ?;''',(data.get('name'), data.get('country'), data.get('state'), i[0], i[1]))
+                            WHERE latitude = ? AND longtitude = ?;""",
+                    (
+                        data.get("name"),
+                        data.get("country"),
+                        data.get("state"),
+                        i[0],
+                        i[1],
+                    ),
+                )
 
-               # if n % 100 == 0: print (f'{n} из {len(enumerate(data))}.') #Информация в терминал о каждой 100-записи
-                time.sleep(1.1) # Free OWM API имеет ограничение на 60 запросов в минуту
+                # if n % 100 == 0: print (f'{n} из {len(enumerate(data))}.') #Информация в терминал о каждой 100-записи
+                time.sleep(
+                    1.1
+                )  # Free OWM API имеет ограничение на 60 запросов в минуту
         finally:
             self.con.commit()
