@@ -31,13 +31,18 @@ Full refreshing of database is wery long.
 ## Usage
 
 1. git clone https://github.com/oleg-wl/meteorite_data
-2. pip install -r requests.txt
-3. create enviroment variables: 
-* export METEO_API='your api key in OWM'.
-* export NASA_API='your app token on Socrata'. [see more on]('https://dev.socrata.com/docs/app-tokens.html)
+2. pip install -r requirements.txt
+3. create secters.sh file with your API keys as enviroment variables.
+secrets.sh:
+```
+#!bin/bash
+export METEO_API='your api key in OWM'.
+export NASA_API='your app token on Socrata'
+```
+About API keys [see more on]('https://dev.socrata.com/docs/app-tokens.html)
 
 4. run: python main.py
-This actions create meteorites.db in project's dir. You can use this in your prijects or analytics.
+This actions create meteorites.db in project's dir. You can use this in your projects or analytics.
 
 ## Analytics
 TODO:

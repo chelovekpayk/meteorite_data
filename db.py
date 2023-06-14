@@ -90,8 +90,10 @@ class Database:
         Connects names for geoplaces from Recursive geodata API
         api_key: str api key for OWM
         """
-        query = """SELECT Geodata.latitude, Geodata.longtitude FROM Geodata
-        WHERE Geodata.latitude IS NOT NULL AND Geodata.latitude IS NOT 0.0 AND Geodata.longtitude IS NOT 0.0;"""
+        query = """
+            SELECT latitude, longtitude 
+            FROM Geodata
+            WHERE latitude IS NOT NULL OR (latitude != 0.0 AND longtitude != 0.0);"""
         data = self.cur.execute(query).fetchall()
 
         url = "http://api.openweathermap.org/geo/1.0/reverse"
@@ -113,6 +115,7 @@ class Database:
 
                 except Exception as e:
                     print(f"Error {e} on row {n}, {i[0]}, {i[1]}")
+                    continue
 
                 self.cur.execute(
                     """UPDATE Geodata

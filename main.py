@@ -1,20 +1,28 @@
 #!.venv/bin python
 # coding=utf-8
 import os
+import subprocess
 
 from app import Meteorites
 from db import Database
 
-# You can insert your API key here
-meteo_api = os.environ["METEO_API"]
-nasa_api = os.environ["NASA_API"]
+#Скрипт для проверки АПИ ключей
+if os.path.isfile('secrets.sh'):
+    subprocess.call("sleep.sh", shell=True)
+    
+    meteo_api = os.environ["METEO_API"]
+    nasa_api = os.environ["NASA_API"]
 
-data = Meteorites().get_data(nasa_api)
-db = Database(data)
+    # You can insert your API key here
 
-# Creating databases
-db.create_mt_table()
-db.create_geo_table()
+    data = Meteorites().get_data(nasa_api)
+    db = Database(data)
 
-# Requesting to OWM API
-db.get_geodata_api(meteo_api)
+    # Creating databases
+    db.create_mt_table()
+    db.create_geo_table()
+
+    # Requesting to OWM API
+    db.get_geodata_api(meteo_api)
+    
+else: print('I need API keys')
